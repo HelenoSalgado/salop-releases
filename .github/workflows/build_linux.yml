@@ -31,14 +31,69 @@ jobs:
     - name: Build Linux DEB
       run: ./gradlew :composeApp:packageDeb --no-configuration-cache
 
+    # === INÍCIO EMPACOTAMENTO ARCH ===
+    - name: Checkout Release Repo (PKGBUILD)
+      uses: actions/checkout@v4
+      with:
+        path: release_repo
+
+    - name: Prepare Arch Build
+      run: |
+        TAG=${{ github.ref_name }}
+        VERSION=${TAG#v}
+        if [[ -z "$VERSION" ]] || [[ "$VERSION" == "main" ]]; then VERSION="0.0.0"; fi
+        
+        echo "Preparing Arch build for version: $VERSION"
+        mkdir -p build_arch
+        
+        # Copiar PKGBUILD e .desktop
+        cp release_repo/arch/PKGBUILD build_arch/
+        cp release_repo/arch/BereiaVerse.desktop build_arch/
+        
+        # Atualizar versão no PKGBUILD
+        sed -i "s/pkgver=0.0.0/pkgver=$VERSION/" build_arch/PKGBUILD
+        
+        # Copiar Binários do App (Do output do Gradle)
+        # O path padrão do createDistributable/packageDeb:
+        cp -r composeApp/build/compose/binaries/main/app build_arch/app
+        
+        # Tentar encontrar e copiar o ícone PNG
+        # O Compose costuma colocar recursos processados aqui:
+        ICON_PATH=$(find composeApp/build/compose/binaries/main -name "*.png" | head -n 1)
+        if [ -n "$ICON_PATH" ]; then
+            echo "Icon found at: $ICON_PATH"
+            cp "$ICON_PATH" build_arch/bereia-verse.png
+        else
+            echo "WARNING: No PNG icon found. The package will lack an icon."
+        fi
+
+    - name: Build Arch Package (Docker)
+      uses: addnab/docker-run-action@v3
+      with:
+        image: archlinux:base-devel
+        options: -v ${{ github.workspace }}/build_arch:/home/builder/package
+        run: |
+          useradd -m builder
+          chown -R builder:builder /home/builder/package
+          su builder -c "cd /home/builder/package && makepkg -s --noconfirm"
+    # === FIM EMPACOTAMENTO ARCH ===
+
     - name: Upload DEB Artifact
       uses: actions/upload-artifact@v4
       with:
         name: verse-linux-deb
         path: composeApp/build/compose/binaries/main/deb/*.deb
 
+    - name: Upload Arch Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: verse-arch-pkg
+        path: build_arch/*.pkg.tar.zst
+
     - name: Release
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
       with:
-        files: composeApp/build/compose/binaries/main/deb/*.deb
+        files: |
+          composeApp/build/compose/binaries/main/deb/*.deb
+          build_arch/*.pkg.tar.zst
