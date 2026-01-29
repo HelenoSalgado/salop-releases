@@ -78,7 +78,9 @@ jobs:
         image: archlinux:base-devel
         options: -v ${{ github.workspace }}/build_arch:/home/builder/package
         run: |
+          pacman -Syu --noconfirm
           useradd -m builder
+          echo "builder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
           chown -R builder:builder /home/builder/package
           su builder -c "cd /home/builder/package && makepkg -s --noconfirm"
     # === FIM EMPACOTAMENTO ARCH ===
