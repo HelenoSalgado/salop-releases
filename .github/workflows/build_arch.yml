@@ -44,22 +44,22 @@ jobs:
         if [[ -z "$VERSION" ]] || [[ "$VERSION" == "main" ]] || [[ "$VERSION" == "master" ]]; then VERSION="0.0.0"; fi
         
         echo "Preparing Arch build for version: $VERSION"
-        mkdir -p build_arch/app
+        mkdir -p build_arch/src/app
         
         # Copiar PKGBUILD e .desktop do repo de release
         cp release_repo/arch/PKGBUILD build_arch/
-        cp release_repo/arch/BereiaVerse.desktop build_arch/
+        cp release_repo/arch/BereiaVerse.desktop build_arch/src/
         
         # Atualizar versão no PKGBUILD
         sed -i "s/pkgver=0.0.0/pkgver=$VERSION/" build_arch/PKGBUILD
         
         # Copiar Binários do App
-        cp -r composeApp/build/compose/binaries/main/app/bereia-verse/* build_arch/app/
+        cp -r composeApp/build/compose/binaries/main/app/bereia-verse/* build_arch/src/app/
         
         # Ícone
         ICON_PATH=$(find composeApp/build/compose/binaries/main -name "*.png" | head -n 1)
         if [ -n "$ICON_PATH" ]; then
-            cp "$ICON_PATH" build_arch/bereia-verse.png
+            cp "$ICON_PATH" build_arch/src/bereia-verse.png
         fi
 
     - name: Build Arch Package (Docker)

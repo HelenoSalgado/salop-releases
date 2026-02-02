@@ -8,8 +8,6 @@ url="https://github.com/Instituto-Reformado-Santo-Evangelho/bereia-verse"
 license=('Custom')
 depends=('java-runtime>=17' 'glibc')
 options=('!strip')
-source=('BereiaVerse.desktop') # O ícone será copiado dinamicamente no CI
-md5sums=('SKIP')
 
 package() {
     local _appdir="$srcdir/app"
@@ -24,9 +22,10 @@ package() {
     ln -s "/opt/$pkgname/bin/bereia-verse" "$pkgdir/usr/bin/$pkgname"
 
     # 3. Instalar arquivo .desktop
+    # O arquivo é copiado para o srcdir pelo CI
     install -Dm644 "$srcdir/BereiaVerse.desktop" "$pkgdir/usr/share/applications/$pkgname.desktop"
 
-    # 4. Instalar Ícone (se existir na raiz do build_arch)
+    # 4. Instalar Ícone (se existir no srcdir)
     if [ -f "$srcdir/bereia-verse.png" ]; then
         install -Dm644 "$srcdir/bereia-verse.png" "$pkgdir/usr/share/pixmaps/bereia-verse.png"
     fi
