@@ -38,7 +38,7 @@ fi
 # 2. Disparar Workflows
 echo -e "\n${BLUE}=== Disparando Workflows no GitHub ===${NC}"
 
-WORKFLOWS=("build_linux.yml" "build_mac.yml" "build_windows.yml")
+WORKFLOWS=("build_linux.yml" "build_mac.yml" "build_windows.yml" "build_arch.yml")
 
 for WF in "${WORKFLOWS[@]}"; do
     echo -n "Disparando $WF... "
