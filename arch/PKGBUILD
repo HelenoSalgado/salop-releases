@@ -21,7 +21,7 @@ package() {
 
     # 2. Link Simbólico para o Binário
     mkdir -p "$pkgdir/usr/bin"
-    ln -s "/opt/$pkgname/bin/verse" "$pkgdir/usr/bin/$pkgname"
+    ln -s "/opt/$pkgname/bin/bereia-verse" "$pkgdir/usr/bin/$pkgname"
 
     # 3. Instalar arquivo .desktop
     install -Dm644 "$srcdir/BereiaVerse.desktop" "$pkgdir/usr/share/applications/$pkgname.desktop"

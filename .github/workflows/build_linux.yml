@@ -59,8 +59,8 @@ jobs:
         sed -i "s/pkgver=0.0.0/pkgver=$VERSION/" build_arch/PKGBUILD
         
         # Copiar Binários do App (Do output do Gradle)
-        # O path padrão do createDistributable/packageDeb:
-        cp -r composeApp/build/compose/binaries/main/app build_arch/app
+        # O caminho exato do Compose Desktop é app/<nome-do-app>
+        cp -r composeApp/build/compose/binaries/main/app/bereia-verse/* build_arch/app/
         
         # Tentar encontrar e copiar o ícone PNG
         # O Compose costuma colocar recursos processados aqui:
