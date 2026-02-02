@@ -2,6 +2,11 @@ name: Build Windows App
 
 on:
   workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch, Tag ou SHA do bereia-verse para compilar'
+        required: false
+        default: ''
 
 jobs:
   build-windows:
@@ -16,6 +21,7 @@ jobs:
       with:
         repository: Instituto-Reformado-Santo-Evangelho/bereia-verse
         token: ${{ secrets.GH_PAT_BEREIA }}
+        ref: ${{ github.event.inputs.ref || github.ref_name }}
         fetch-depth: 0
 
     - name: Set up JDK 17
