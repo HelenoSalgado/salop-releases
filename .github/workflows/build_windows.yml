@@ -31,7 +31,7 @@ jobs:
       shell: powershell
 
     - name: Decode PFX Certificate
-      if: "${{ secrets.MSIX_PFX_BASE64 != '' }}"
+      if: secrets.MSIX_PFX_BASE64 != ''
       env:
         MSIX_PFX_BASE64: ${{ secrets.MSIX_PFX_BASE64 }}
       run: |
