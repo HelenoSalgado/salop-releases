@@ -43,10 +43,7 @@ jobs:
       env:
         PFX_PASS: ${{ secrets.MSIX_PFX_PASSWORD }}
       run: |
-        ./gradlew :composeApp:createMsix `
-          -Pmsix.pfx.path="signing.pfx" `
-          -Pmsix.pfx.password="$env:PFX_PASS" `
-          --no-configuration-cache
+        ./gradlew :composeApp:createMsix -Pmsix.pfx.path="signing.pfx" -Pmsix.pfx.password="$env:PFX_PASS" --no-configuration-cache
 
     - name: Upload MSIX Artifact
       uses: actions/upload-artifact@v4
