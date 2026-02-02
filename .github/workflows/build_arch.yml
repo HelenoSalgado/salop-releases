@@ -1,0 +1,87 @@
+name: Build Arch Linux App
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-arch:
+    name: Build Arch Package
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        repository: Instituto-Reformado-Santo-Evangelho/bereia-verse
+        token: ${{ secrets.GH_PAT_BEREIA }}
+        fetch-depth: 0
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: gradle
+
+    - name: Inject Google Client Secrets
+      env:
+        GOOGLE_SECRETS: ${{ secrets.GOOGLE_CLIENT_SECRETS }}
+      run: echo "$GOOGLE_SECRETS" > composeApp/src/jvmMain/resources/client_secrets.json
+
+    - name: Build Application Binaries
+      run: ./gradlew :composeApp:createDistributable --no-configuration-cache
+
+    - name: Checkout Release Repo (PKGBUILD)
+      uses: actions/checkout@v4
+      with:
+        path: release_repo
+
+    - name: Prepare Arch Build
+      run: |
+        TAG=${{ github.ref_name }}
+        VERSION=${TAG#v}
+        if [[ -z "$VERSION" ]] || [[ "$VERSION" == "main" ]] || [[ "$VERSION" == "master" ]]; then VERSION="0.0.0"; fi
+        
+        echo "Preparing Arch build for version: $VERSION"
+        mkdir -p build_arch/app
+        
+        # Copiar PKGBUILD e .desktop do repo de release
+        cp release_repo/arch/PKGBUILD build_arch/
+        cp release_repo/arch/BereiaVerse.desktop build_arch/
+        
+        # Atualizar versão no PKGBUILD
+        sed -i "s/pkgver=0.0.0/pkgver=$VERSION/" build_arch/PKGBUILD
+        
+        # Copiar Binários do App
+        cp -r composeApp/build/compose/binaries/main/app/bereia-verse/* build_arch/app/
+        
+        # Ícone
+        ICON_PATH=$(find composeApp/build/compose/binaries/main -name "*.png" | head -n 1)
+        if [ -n "$ICON_PATH" ]; then
+            cp "$ICON_PATH" build_arch/bereia-verse.png
+        fi
+
+    - name: Build Arch Package (Docker)
+      uses: addnab/docker-run-action@v3
+      with:
+        image: archlinux:latest
+        options: -v ${{ github.workspace }}/build_arch:/package
+        run: |
+          pacman -Syu --noconfirm --needed base-devel
+          useradd -m builder
+          echo "builder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+          chown -R builder:builder /package
+          su builder -c "cd /package && yes 1 | makepkg -s --noconfirm"
+
+    - name: Upload Arch Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: verse-arch-pkg
+        path: build_arch/*.pkg.tar.zst
+
+    - name: Release Arch
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: build_arch/*.pkg.tar.zst
