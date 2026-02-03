@@ -1,8 +1,8 @@
 [Desktop Entry]
 Name=IRSE | Bereia Verse
 Comment=Popup para Exibição de Referências Bíblica e Anotações.
-Exec=bereia-verse
-Icon=bereia-verse
+Exec=bereiaverse
+Icon=bereiaverse
 Terminal=false
 Type=Application
 Categories=Education;Utility;

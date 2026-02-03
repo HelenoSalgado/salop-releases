@@ -19,14 +19,14 @@ package() {
 
     # 2. Link Simbólico para o Binário
     mkdir -p "$pkgdir/usr/bin"
-    ln -s "/opt/$pkgname/bin/bereia-verse" "$pkgdir/usr/bin/$pkgname"
+    ln -s "/opt/$pkgname/bin/bereiaverse" "$pkgdir/usr/bin/$pkgname"
 
     # 3. Instalar arquivo .desktop
     # O arquivo é copiado para o srcdir pelo CI
-    install -Dm644 "$srcdir/BereiaVerse.desktop" "$pkgdir/usr/share/applications/$pkgname.desktop"
+    install -Dm644 "$srcdir/bereiaverse.desktop" "$pkgdir/usr/share/applications/$pkgname.desktop"
 
     # 4. Instalar Ícone (se existir no srcdir)
-    if [ -f "$srcdir/bereia-verse.png" ]; then
-        install -Dm644 "$srcdir/bereia-verse.png" "$pkgdir/usr/share/pixmaps/bereia-verse.png"
+    if [ -f "$srcdir/bereiaverse.png" ]; then
+        install -Dm644 "$srcdir/bereiaverse.png" "$pkgdir/usr/share/pixmaps/bereiaverse.png"
     fi
 }
