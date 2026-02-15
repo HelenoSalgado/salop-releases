@@ -42,9 +42,7 @@ jobs:
       - name: Checkout Release Repo (PKGBUILD)
         uses: actions/checkout@v4
         with:
-          repository: Instituto-Reformado-Santo-Evangelho/verse-releases
           path: release_repo
-          token: ${{ secrets.GH_PAT_BEREIA }}
 
       - name: Prepare Arch Build
         run: |
@@ -55,10 +53,18 @@ jobs:
           fi
           echo "Preparing Arch build for version: $VERSION"
           mkdir -p build_arch/src/app
+          
+          # Copiar PKGBUILD e .desktop do repo de release
           cp release_repo/arch/PKGBUILD build_arch/
           cp release_repo/arch/bereiaverse.desktop build_arch/src/
+          
+          # Atualizar versão no PKGBUILD
           sed -i "s/pkgver=0.0.0/pkgver=$VERSION/" build_arch/PKGBUILD
+          
+          # Copiar Binários do App
           cp -r composeApp/build/compose/binaries/main/app/bereiaverse/* build_arch/src/app/
+          
+          # Ícone
           ICON_PATH=$(find composeApp/build/compose/binaries/main -name "*.png" | head -n 1)
           if [ -n "$ICON_PATH" ]; then
             cp "$ICON_PATH" build_arch/src/bereiaverse.png
