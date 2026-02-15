@@ -32,8 +32,9 @@ jobs:
       - name: Inject Google Client Secrets
         env:
           GOOGLE_SECRETS: ${{ secrets.GOOGLE_CLIENT_SECRETS }}
-        mkdir -p composeApp/src/desktopMain/resources
-        run: echo "$GOOGLE_SECRETS" > composeApp/src/desktopMain/resources/client_secrets.json
+        run: |
+          mkdir -p composeApp/src/desktopMain/resources
+          echo "$GOOGLE_SECRETS" > composeApp/src/desktopMain/resources/client_secrets.json
 
       - name: Build Application Binaries
         run: ./gradlew :composeApp:createDistributable --no-configuration-cache
@@ -54,18 +55,10 @@ jobs:
           fi
           echo "Preparing Arch build for version: $VERSION"
           mkdir -p build_arch/src/app
-          
-          # Copiar PKGBUILD e .desktop do repo de release
           cp release_repo/arch/PKGBUILD build_arch/
           cp release_repo/arch/bereiaverse.desktop build_arch/src/
-          
-          # Atualizar versão no PKGBUILD
           sed -i "s/pkgver=0.0.0/pkgver=$VERSION/" build_arch/PKGBUILD
-          
-          # Copiar Binários do App
           cp -r composeApp/build/compose/binaries/main/app/bereiaverse/* build_arch/src/app/
-          
-          # Ícone
           ICON_PATH=$(find composeApp/build/compose/binaries/main -name "*.png" | head -n 1)
           if [ -n "$ICON_PATH" ]; then
             cp "$ICON_PATH" build_arch/src/bereiaverse.png
