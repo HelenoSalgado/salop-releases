@@ -22,10 +22,10 @@ jobs:
         ref: ${{ github.event.inputs.ref || github.ref_name }}
         fetch-depth: 0
 
-    - name: Set up JDK 17
+    - name: Set up JDK 21
       uses: actions/setup-java@v4
       with:
-        java-version: '17'
+        java-version: '21'
         distribution: 'temurin'
         cache: gradle
 
@@ -38,7 +38,7 @@ jobs:
       run: chmod +x gradlew
 
     - name: Build macOS DMG
-      run: ./gradlew :composeApp:packageDmg
+      run: ./gradlew :composeApp:packageDmg --no-configuration-cache
 
     - name: Upload DMG Artifact
       uses: actions/upload-artifact@v4
@@ -51,3 +51,4 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       with:
         files: composeApp/build/compose/binaries/main/dmg/*.dmg
+        token: ${{ secrets.GH_PAT_BEREIA }}
