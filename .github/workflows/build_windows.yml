@@ -24,6 +24,7 @@ jobs:
         fetch-depth: 0
 
     - name: Checkout Ref (Tag or Master)
+      shell: bash
       run: |
         REF="${{ github.event.inputs.ref || github.ref_name }}"
         echo "Checking out $REF..."
