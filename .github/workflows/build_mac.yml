@@ -32,6 +32,7 @@ jobs:
     - name: Inject Google Client Secrets
       env:
         GOOGLE_SECRETS: ${{ secrets.GOOGLE_CLIENT_SECRETS }}
+        mkdir -p composeApp/src/jvmMain/resources
       run: echo "$GOOGLE_SECRETS" > composeApp/src/jvmMain/resources/client_secrets.json
 
     - name: Grant execute permission for gradlew
