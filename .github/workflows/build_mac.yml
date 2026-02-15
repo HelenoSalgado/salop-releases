@@ -19,7 +19,7 @@ jobs:
       with:
         repository: Instituto-Reformado-Santo-Evangelho/bereia-verse
         token: ${{ secrets.GH_PAT_BEREIA }}
-        ref: ${{ github.event.inputs.ref || github.ref_name }}
+        ref: ${{ github.event.inputs.ref || (github.ref_type == 'tag' && github.ref_name) || 'master' }}
         fetch-depth: 0
 
     - name: Set up JDK 21
